@@ -1,15 +1,66 @@
-# Remix compiler artifacts
+# Dependencies
+node_modules/
+
+# Logs & package manager debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment & secrets (never commit keys)
+.env
+.env.*
+!.env.example
+
+# Hardhat / Hardhat-based stacks (cache, builds, generated types)
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Coverage (Solidity / JS test coverage)
+coverage/
+coverage.json
+.nyc_output/
+
+# Gas reports (optional local tuning; uncomment if you do not want them tracked)
+# gasReporterOutput.json
+
+# Remix compiler artifacts & plugin state
 **/artifacts/
 **/artifacts/**
-
-# Remix plugin state folders
 deps/
 states/
 
-# Debug info
+# Foundry (if you add Forge alongside Hardhat; `cache/` also covers Forge cache)
+out/
+# Deployment txs — uncomment if you prefer not to track local broadcast logs
+# broadcast/
+
+# Truffle (if used)
+build/
+
+# Debug / tooling metadata
 *.dbg.json
 *.tsbuildinfo
 
-# Optional
-.env
-.env.local
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors (keep team-shared snippets in-repo; ignore personal workspace files)
+.idea/
+*.swp
+*.swo
+*~
+
+# Cursor / local IDE state (not part of the contract source)
+.specstory/
+.cursorindexingignore
+
+# Optional: Python tooling (Slither, Manticore, etc.)
+.venv/
+venv/
+__pycache__/
+*.py[cod]
