@@ -47,6 +47,7 @@ build/
 
 # OS
 .DS_Store
+.vscode/
 Thumbs.db
 
 # Editors (keep team-shared snippets in-repo; ignore personal workspace files)
