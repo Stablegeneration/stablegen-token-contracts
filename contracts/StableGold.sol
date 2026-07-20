@@ -11,8 +11,8 @@
  * @title StableGen - StableGold
  * @notice Gold-backed ERC20 token with physical redemption, on-chain buyback, cross-chain support, and compliance features
  * @author StableGen Dev Team
- * @date 12-June-2026
- * @version 2.17.2
+ * @date 20-July-2026
+ * @version 2.17.3
  */
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
@@ -1081,6 +1081,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     function onchainBuyBack(address _to, address _token, uint256 _amount) public notPaused {
         require(acceptedTokens[_token] == true, "Invalid token address");
         address owner = _msgSender();
+        require(freezeList[owner] == false, "Not allowed");
         require(kycStatus[owner] == true, "No KYC");
         // enable onchain
         require(onchainbuyBackStatus == true, "Onchain Buy Back not activated");
