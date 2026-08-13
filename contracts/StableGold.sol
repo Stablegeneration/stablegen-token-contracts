@@ -698,8 +698,8 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     }
 
     // check signer
-    function recoverSigner(bytes32 digest, bytes memory signature) public pure returns (address) {
-    return ECRecover.recover(digest, signature);
+    function recoverSignerEOA(bytes32 digest, bytes memory signature) public pure returns (address) { // L-09
+        return ECRecover.recover(digest, signature);
     }
 
     // function to retrieve the data bytes and hash
