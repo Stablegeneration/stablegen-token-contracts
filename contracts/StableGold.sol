@@ -381,7 +381,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
   
     // withdraw any ERC20 funds sent to the smart contract
     function withdrawERC20(address _contractAddress, address _to, uint256 _amount) public onlyOwner {
-        IERC20(_contractAddress).safeTransfer(_to, _amount); // M-02          
+        IERC20(_contractAddress).safeTransfer(_to, _amount); // M-02     
     }
 
     // withdraw fees collected froms buys or onchain buy backs
@@ -750,6 +750,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     // allows the token bridge to mint tokens
     function crosschainMint(address _destination, uint256 _amount) public override onlyTokenBridge notPaused { // L-05
         require(crossChainStatus == true, "Cross Chain not enabled");
+        require(freezeList[_destination] == false, "Not allowed"); // M-03
         if (chainReserveFeed == address(0) || proofOfReserveEnabled == false) {
             require(totalSupply() + _amount <= maxSupply, "Supply can't exceed maxSupply");
             _mint(_destination, _amount);
@@ -772,6 +773,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     // allows the token bridge to burn tokens
     function crosschainBurn(address _from, uint256 _amount) public override onlyTokenBridge notPaused { // L-05
         require(crossChainStatus == true, "Cross Chain not enabled");
+        require(freezeList[_from] == false, "Not allowed"); // M-03
         _burn(_from, _amount);
         emit Burn(_from, _amount);
         emit CrosschainBurn(_from, _amount, msg.sender);
