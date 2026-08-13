@@ -335,7 +335,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         uint8 tokenDec = IERC20Metadata(_token).decimals();
         require(tokenDec == 6 || tokenDec == 18, "Only 6 or 18 decimal tokens accepted");
         // calculate gold price in grams and include premium
-        uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768; // 1 troy ounce = 31.1034768g;
+        uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768; // 1 troy ounce = 31.1034768g
         uint256 goldPricePremium = goldPrice + (goldPrice * premium / 10000);
         // calculate number of tokens to mint
         uint256 noOfTokens = amount * 100000000 / goldPricePremium; // N-16 - x by 100000000 as datafeed has 8 decimals
@@ -443,7 +443,12 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // retrieve spot gold prices in grams
     function retrieveGoldPrices() public view returns (int256, uint256, uint256) {
-        (, int256 goldPriceData, , ,) = priceFeed.latestRoundData();
+        (, int256 goldPriceData, , uint256 updatedAt,) = priceFeed.latestRoundData();
+        require(goldPriceData > 0, "Invalid answer from Datafeed");
+        // Sanity check: is answer updatedAt in the past
+        require(block.timestamp >= updatedAt, "Invalid Datafeed updatedAt");
+        // Check the answer is fresh enough (i.e., within the specified heartbeat)
+        require(block.timestamp - updatedAt <= dataFeedHeartbeat, "Datafeed answer too old");
         uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768;  // in grams
         uint256 goldPricePremium = goldPrice + (goldPrice * premium / 10000);
         return (goldPriceData, goldPrice, goldPricePremium);
@@ -451,7 +456,12 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // retrieve onchain buyback prices in grams
     function retrieveOnChainGoldBBPrices() public view returns (int256, uint256, uint256) {
-        (, int256 goldPriceData, , ,) = priceFeed.latestRoundData();
+        (, int256 goldPriceData, , uint256 updatedAt,) = priceFeed.latestRoundData();
+        require(goldPriceData > 0, "Invalid answer from Datafeed");
+        // Sanity check: is answer updatedAt in the past
+        require(block.timestamp >= updatedAt, "Invalid Datafeed updatedAt");
+        // Check the answer is fresh enough (i.e., within the specified heartbeat)
+        require(block.timestamp - updatedAt <= dataFeedHeartbeat, "Datafeed answer too old");
         uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768; // in grams;
         uint256 buybackPrice = goldPrice - (goldPrice * onchainBuyBackFee / 10000);
         return (goldPriceData, goldPrice, buybackPrice);
