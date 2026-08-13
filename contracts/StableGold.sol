@@ -155,6 +155,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         burnRedeem = true; // removes redeem tokens from total supply
         buyBackAddress = address(this); // buyback address for OTC buy backs is set to contract address
         pause = true; // contract is paused
+        require(maxSupply >= premintSupply, "Max supply must exceed premint supply"); // L-02
     }
 
     // add admin
