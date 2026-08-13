@@ -386,7 +386,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
   
     // withdraw any ERC20 funds sent to the smart contract
     function withdrawERC20(address _contractAddress, address _to, uint256 _amount) public onlyOwner {
-        IERC20(_contractAddress).safeTransfer(_to, _amount); // M-02     
+        IERC20(_contractAddress).safeTransfer(_to, _amount); // M-02
     }
 
     // withdraw fees collected froms buys or onchain buy backs
@@ -401,7 +401,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     }
 
     // transfer override
-    function transfer(address to, uint256 amount) public notPaused virtual override returns (bool) {
+    function transfer(address to, uint256 amount) public virtual override notPaused returns (bool) { // N-03
         address owner = _msgSender();
         require(freezeList[owner] == false && freezeList[to] == false, "Not allowed");
         _transfer(owner, to, amount);
@@ -409,7 +409,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     }
 
     // transferFrom override
-    function transferFrom(address from, address to, uint256 amount) public notPaused virtual override returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual override notPaused returns (bool) { // N-03
         address spender = _msgSender();
         require(freezeList[from] == false && freezeList[to] == false && freezeList[spender] == false, "Not allowed"); // H-01
         _spendAllowance(from, spender, amount);
