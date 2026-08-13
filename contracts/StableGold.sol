@@ -337,8 +337,8 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768; // 1 troy ounce = 31.1034768g;
         uint256 goldPricePremium = goldPrice + (goldPrice * premium / 10000);
         // calculate number of tokens to mint
-        uint256 noOfTokens = (amount / goldPricePremium) * 100000000; // x by 100000000 as datafeed has 8 decimals;
-        require(noOfTokens > 0,"Min amount required"); // 0.0000000001 min token value allow to buy
+        uint256 noOfTokens = amount * 100000000 / goldPricePremium; // N-16 - x by 100000000 as datafeed has 8 decimals
+        require(noOfTokens > 0,"Min amount required");
         // check reserves
         if (chainReserveFeed == address(0) || proofOfReserveEnabled == false) {
             require(totalSupply() + noOfTokens <= maxSupply, "Supply can't exceed maxSupply");
