@@ -533,6 +533,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             collectedBBFees[_token] =  collectedBBFees[_token] + calcFees;
         }
         // transfer stablecoins to seller
+        require(noOfTokens > 0, "Failed"); // L-08
         IERC20(_token).safeTransferFrom(address(this), _to, noOfTokens); // M-02
         emit onchainBuyBackEvent(_to, goldPrice, buybackPrice, calcFees, _amount, noOfTokens);
     }
