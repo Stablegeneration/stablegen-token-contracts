@@ -284,6 +284,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // mint as admin
     function mint(address _to, uint256 amount) public onlyMinter notPaused {
+        require(freezeList[_to] == false, "Not allowed"); // H-01
         if (chainReserveFeed == address(0) || proofOfReserveEnabled == false) {
             require(totalSupply() + amount <= maxSupply, "Supply can't exceed maxSupply");
             _mint(_to, amount);
@@ -310,6 +311,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // buy a token
     function buy(address _to, address _token, uint256 amount) public notPaused {
+        require(freezeList[_to] == false, "Not allowed"); // H-01
         require(acceptedTokens[_token] == true && amount > 0, "Invalid token address / Invalid amount");
         if (saleStatus == false) {
             require((kycStatus[msg.sender] == true && custody[msg.sender] == true), "Buyer not authorised");
@@ -403,10 +405,25 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     // transferFrom override
     function transferFrom(address from, address to, uint256 amount) public notPaused virtual override returns (bool) {
         address spender = _msgSender();
-        require(freezeList[from] == false && freezeList[to] == false, "Not allowed");
+        require(freezeList[from] == false && freezeList[to] == false && freezeList[spender] == false, "Not allowed"); // H-01
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
         return true;
+    }
+
+    // burn override
+    function burn(uint256 amount) public virtual override notPaused { // H-01 && L-05
+        address owner = _msgSender();
+        require (freezeList[owner] == false, "Not allowed");
+        _burn(owner, amount);
+    }
+
+    // burnFrom override
+    function burnFrom(address account, uint256 amount) public virtual override notPaused { // H-01 && L-05
+        address spender = _msgSender();
+        require(freezeList[account] == false && freezeList[spender] == false, "Not allowed");
+        _spendAllowance(account, spender, amount);
+        _burn(account, amount);
     }
 
     // batch transfers
@@ -731,7 +748,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     // cross chain functions
 
     // allows the token bridge to mint tokens
-    function crosschainMint(address _destination, uint256 _amount) public override onlyTokenBridge notPaused {
+    function crosschainMint(address _destination, uint256 _amount) public override onlyTokenBridge notPaused { // L-05
         require(crossChainStatus == true, "Cross Chain not enabled");
         if (chainReserveFeed == address(0) || proofOfReserveEnabled == false) {
             require(totalSupply() + _amount <= maxSupply, "Supply can't exceed maxSupply");
@@ -753,7 +770,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     }
 
     // allows the token bridge to burn tokens
-    function crosschainBurn(address _from, uint256 _amount) public override onlyTokenBridge {
+    function crosschainBurn(address _from, uint256 _amount) public override onlyTokenBridge notPaused { // L-05
         require(crossChainStatus == true, "Cross Chain not enabled");
         _burn(_from, _amount);
         emit Burn(_from, _amount);
