@@ -314,6 +314,9 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     function setChainReserveFeed(address _newFeed, bool _status, uint256 _chainReserveHeartbeat) public onlyOwner {
         chainReserveFeed = _newFeed;
         proofOfReserveEnabled = _status;
+        if (proofOfReserveEnabled == true) {
+            require(chainReserveFeed != address(0), "Zero address Error");
+        }
         chainReserveHeartbeat = _chainReserveHeartbeat;
         require(chainReserveHeartbeat > 0, "Heartbeat must be > 0"); // L-07
     }
