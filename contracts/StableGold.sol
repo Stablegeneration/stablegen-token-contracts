@@ -24,6 +24,9 @@ import "./EIP3009.sol";
 import "./SignatureChecker.sol";
 import "./ERC20Burnable.sol";
 import "./Ownable.sol";
+import "./SafeERC20.sol";
+
+using SafeERC20 for IERC20;
 
 /**
  * @title StableGold
@@ -353,15 +356,13 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             // store fees on mapping
             calcFees = (noOfTokens * (goldPrice * premium / 10000) / 100000000);
             collectedPremiums[_token] =  collectedPremiums[_token] + calcFees;
-            bool success = IERC20(_token).transferFrom(_msgSender(), address(this), amount);
-            require(success, "Token transferFrom failed");
+            IERC20(_token).safeTransferFrom(_msgSender(), address(this), amount); // M-02
             emit buyTokens(_to, noOfTokens, goldPrice, goldPricePremium, calcFees, amount);
         } else if (tokenDec == 6) { // 6 decimal transfers
             // store fees on mapping
             calcFees = ((noOfTokens * (goldPrice * premium / 10000) / 100000000) / 1e12);
             collectedPremiums[_token] =  collectedPremiums[_token] + calcFees;
-            bool success = IERC20(_token).transferFrom(_msgSender(), address(this), amount / 1e12);
-            require(success, "Token transferFrom failed");
+            IERC20(_token).safeTransferFrom(_msgSender(), address(this), amount / 1e12); // M-02
             emit buyTokens(_to, noOfTokens, goldPrice, goldPricePremium, calcFees, amount / 1e12);
         }
     }
@@ -380,16 +381,16 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
   
     // withdraw any ERC20 funds sent to the smart contract
     function withdrawERC20(address _contractAddress, address _to, uint256 _amount) public onlyOwner {
-        IERC20(_contractAddress).transfer(_to, _amount);             
+        IERC20(_contractAddress).safeTransfer(_to, _amount); // M-02          
     }
 
     // withdraw fees collected froms buys or onchain buy backs
     function withdrawCollectedFees(uint256 _opt, address _token, address _to) public onlyOwner {
         if (_opt == 1) {
-            IERC20(_token).transfer(_to, collectedPremiums[_token]);
+            IERC20(_token).safeTransfer(_to, collectedPremiums[_token]); // M-02
             collectedPremiums[_token] = 0;
         } else {
-            IERC20(_token).transfer(_to, collectedBBFees[_token]);
+            IERC20(_token).safeTransfer(_to, collectedBBFees[_token]); // M-02
             collectedBBFees[_token] = 0;
         }             
     }
@@ -487,7 +488,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     // function to approve the stablecoin contracts to enable onchain buyback
     function approveTokenContract(address _token, uint256 _amount) public onlyAdmin {
         require(acceptedTokens[_token] == true, "Invalid token address");
-        IERC20(_token).approve(address(this), _amount);
+        IERC20(_token).forceApprove(address(this), _amount); // M-02
     }
 
     // onchain buyback with fee
@@ -527,8 +528,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             collectedBBFees[_token] =  collectedBBFees[_token] + calcFees;
         }
         // transfer stablecoins to seller
-        bool success = IERC20(_token).transferFrom(address(this), _to, noOfTokens);
-        require(success, "Token transferFrom failed");
+        IERC20(_token).safeTransferFrom(address(this), _to, noOfTokens); // M-02
         emit onchainBuyBackEvent(_to, goldPrice, buybackPrice, calcFees, _amount, noOfTokens);
     }
 
