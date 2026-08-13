@@ -156,6 +156,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         buyBackAddress = address(this); // buyback address for OTC buy backs is set to contract address
         pause = true; // contract is paused
         require(maxSupply >= premintSupply, "Max supply must exceed premint supply"); // L-02
+        require(dataFeedHeartbeat > 0, "Heartbeat must be > 0"); // L-07
     }
 
     // add admin
@@ -259,6 +260,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     function updatePriceFeed(address _priceFeed, uint256 _dataFeedHeartbeat) public onlyOwner {
         priceFeed = IDataFeed(_priceFeed);
         dataFeedHeartbeat = _dataFeedHeartbeat;
+        require(dataFeedHeartbeat > 0, "Heartbeat must be > 0"); // L-07
     }
 
     // update the burn redeem status, if false -> dead address, if true -> burns the tokens
@@ -312,6 +314,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         chainReserveFeed = _newFeed;
         proofOfReserveEnabled = _status;
         chainReserveHeartbeat = _chainReserveHeartbeat;
+        require(chainReserveHeartbeat > 0, "Heartbeat must be > 0"); // L-07
     }
 
     // buy a token
