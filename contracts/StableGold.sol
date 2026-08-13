@@ -13,6 +13,7 @@
  * @author StableGen Dev Team
  * @date 20-July-2026
  * @version 2.17.3
+ * @custom:security-contact dev@stablegen.com
  */
 
 pragma solidity ^0.8.25;
