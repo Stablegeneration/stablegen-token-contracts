@@ -480,7 +480,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             require(buyBackStatus == true, "Buy Back not activated");
             _transfer(owner, buyBackAddress, amount);
         } else {
-            revert();
+            revert("Redeem Error");
         }
         emit redeemEvent(owner, amount, _opt);
         return true;
