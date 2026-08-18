@@ -321,7 +321,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         require(chainReserveHeartbeat > 0, "Heartbeat must be > 0"); // L-07
     }
 
-    // buy a token
+    // buy a token (amount based on token's decimals)
     function buy(address _to, address _token, uint256 amount) public notPaused {
         require(freezeList[_to] == false, "Not allowed"); // H-01
         require(acceptedTokens[_token] == true && amount > 0, "Invalid token address / Invalid amount");
@@ -341,8 +341,14 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         uint256 goldPrice = uint256(goldPriceData) * 10000000 / 311034768; // 1 troy ounce = 31.1034768g
         uint256 goldPricePremium = goldPrice + (goldPrice * premium / 10000);
         // calculate number of tokens to mint
-        uint256 noOfTokens = amount * 100000000 / goldPricePremium; // N-16 - x by 100000000 as datafeed has 8 decimals
-        require(noOfTokens > 0,"Min amount required");
+        uint256 noOfTokens;
+        if (tokenDec == 18) { // L-06
+            noOfTokens = amount * 100000000 / goldPricePremium; // N-16 - x by 100000000 as datafeed has 8 decimals
+            require(noOfTokens > 0,"Min amount required");
+        } else if (tokenDec == 6) {
+            noOfTokens = amount * 1e12 * 100000000 / goldPricePremium; // N-16 - x by 100000000 as datafeed has 8 decimals
+            require(noOfTokens > 0,"Min amount required");
+        }
         // check reserves
         if (chainReserveFeed == address(0) || proofOfReserveEnabled == false) {
             require(totalSupply() + noOfTokens <= maxSupply, "Supply can't exceed maxSupply");
@@ -369,10 +375,10 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             emit buyTokens(_to, noOfTokens, goldPrice, goldPricePremium, calcFees, amount);
         } else if (tokenDec == 6) { // 6 decimal transfers
             // store fees on mapping
-            calcFees = ((noOfTokens * (goldPrice * premium / 10000) / 100000000) / 1e12);
+            calcFees = (noOfTokens * (goldPrice * premium / 10000) / 100000000 / 1e12);
             collectedPremiums[_token] =  collectedPremiums[_token] + calcFees;
-            IERC20(_token).safeTransferFrom(_msgSender(), address(this), amount / 1e12); // M-02
-            emit buyTokens(_to, noOfTokens, goldPrice, goldPricePremium, calcFees, amount / 1e12);
+            IERC20(_token).safeTransferFrom(_msgSender(), address(this), amount); // L-06
+            emit buyTokens(_to, noOfTokens, goldPrice, goldPricePremium, calcFees, amount); // L-06
         }
     }
 
