@@ -86,25 +86,25 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // admin role
     modifier onlyAdmin() {
-        require(admin[msg.sender] == true, "Not allowed");
+        require(admin[_msgSender()] == true, "Not allowed");
         _;
     }
 
     // authority role
     modifier onlyAuthority() {
-        require(admin[msg.sender] == true || authority[msg.sender] == true, "Not allowed");
+        require(admin[_msgSender()] == true || authority[_msgSender()] == true, "Not allowed");
         _;
     }
 
     // custody role
     modifier onlyCustody() {
-        require(admin[msg.sender] == true || custody[msg.sender] == true, "Not allowed");
+        require(admin[_msgSender()] == true || custody[_msgSender()] == true, "Not allowed");
         _;
     }
 
     // minter role
     modifier onlyMinter() {
-        require(admin[msg.sender] == true || minter[msg.sender] == true, "Not allowed");
+        require(admin[_msgSender()] == true || minter[_msgSender()] == true, "Not allowed");
         _;
     }
 
@@ -116,7 +116,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
 
     // cross chain modifier
     modifier onlyTokenBridge() {
-    require(msg.sender == tokenBridge, "Only Token Bridge can call");
+    require(_msgSender() == tokenBridge, "Only Token Bridge can call");
     _;
   }
 
@@ -148,8 +148,8 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
      */
     constructor(string memory _name, string memory _symbol, uint256 _premintSupply, uint256 _initialMaxSupply, address _priceFeed, uint256 _dataFeedHeartbeat) ERC20(_name, _symbol) {
         premintSupply = _premintSupply; // pre-minted supply
-        _mint(msg.sender, premintSupply); // mints pre-minted supply if any
-        admin[msg.sender] = true; // makes msg.sender an admin
+        _mint(_msgSender(), premintSupply); // mints pre-minted supply if any
+        admin[_msgSender()] = true; // makes msg.sender an admin
         maxSupply = _initialMaxSupply; // max initial supply that can be minted
         priceFeed = IDataFeed(_priceFeed); // contract address for gold prices
         dataFeedHeartbeat = _dataFeedHeartbeat; // time to check for new datafeed
@@ -326,7 +326,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         require(freezeList[_to] == false, "Not allowed"); // H-01
         require(acceptedTokens[_token] == true && amount > 0, "Invalid token address / Invalid amount");
         if (saleStatus == false) {
-            require((kycStatus[msg.sender] == true && custody[msg.sender] == true), "Buyer not authorised");
+            require((kycStatus[_msgSender()] == true && custody[_msgSender()] == true), "Buyer not authorised");
         }
         (, int256 goldPriceData, , uint256 updatedAt,) = priceFeed.latestRoundData();
         require(goldPriceData > 0, "Invalid answer from Datafeed");
@@ -777,7 +777,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             _mint(_destination, _amount);
         }
         emit Mint(_destination, _amount);
-        emit CrosschainMint(_destination, _amount, msg.sender);
+        emit CrosschainMint(_destination, _amount, _msgSender());
     }
 
     // allows the token bridge to burn tokens
@@ -786,7 +786,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         require(freezeList[_from] == false, "Not allowed"); // M-03
         _burn(_from, _amount);
         emit Burn(_from, _amount);
-        emit CrosschainBurn(_from, _amount, msg.sender);
+        emit CrosschainBurn(_from, _amount, _msgSender());
     }
 
     // set token bridge address
