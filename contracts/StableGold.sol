@@ -481,7 +481,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
         address owner = _msgSender();
         require(freezeList[owner] == false, "Not allowed");
         require(kycStatus[owner] == true, "No KYC");
-        require(amount >= minAmountforRedeem && amount < maxAmountforRedeem, "Max-min amount out of range"); // L-01 not work for 0
+        require(amount >= minAmountforRedeem && amount <= maxAmountforRedeem, "Max-min amount out of range"); // L-01 Restored the bound
         if (_opt == 1) { // physical redemption
         require(redeemStatus == true, "Redeem not active");
             if (burnRedeem == false) { // transfer to dead address, non-mintable
