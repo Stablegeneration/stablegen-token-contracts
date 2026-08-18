@@ -717,7 +717,7 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
     }
 
     // function to retrieve the data bytes and hash
-    function encodeData(uint256 typ, address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce) public pure returns (bytes memory, bytes32) {
+    function encodeData(uint256 typ, address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce) public pure returns (bytes32) { // L-09
         bytes32 datatype;
         if (typ == 1 || typ == 2) {
             if (typ == 1) {
@@ -725,22 +725,12 @@ contract StableGold is ERC20, Ownable, ERC20Burnable, IERC7802, EIP3009 {
             } else if (typ == 2) {
                 datatype = RECEIVE_WITH_AUTHORIZATION_TYPEHASH;
             }
-            bytes memory data = abi.encodePacked(datatype,
-                        from,
-                        to,
-                        value,
-                        validAfter,
-                        validBefore,
-                        nonce);
             bytes32 hash = keccak256( abi.encode( datatype, from, to, value, validAfter, validBefore, nonce ));
-            return (data, hash);
+            return (hash);
         } else {
             datatype = CANCEL_AUTHORIZATION_TYPEHASH;
-            bytes memory data = abi.encodePacked(datatype,
-                        from,
-                        nonce);
             bytes32 hash = keccak256( abi.encode( datatype, from, nonce ));
-            return (data, hash);
+            return (hash);
         }
     }
 
