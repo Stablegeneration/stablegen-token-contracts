@@ -19,7 +19,7 @@ The repository includes:
 
 As StableGen issues additional asset reference tokens, their production contracts, interfaces, and shared modules will be added to this repository.
 
-Source code is published for third-party review, integration, and fork. Deployment addresses, supported networks, and operational runbooks are maintained separately.
+Source code is published for third-party review, integration, and fork. Deployment addresses are listed in [`docs/DEPLOYMENTS.md`](docs/DEPLOYMENTS.md). Operational runbooks are maintained separately.
 
 ## Audits
 
@@ -99,7 +99,7 @@ These files support local experimentation and are **not** intended as production
 
 ### Multisign ownership
 
-Once the contract is deployed, ownership is transferred from the deployer to a [Safe{Wallet}](https://safe.global/) multisig—the original multisig wallet used for secure self-custody of owner-only actions. These include `pauseStatus`, `increaseSupply`, `decreaseSupply`, `reclaim`, `burnFreezedAssets`, and granting the admin role via `addAdmin`.
+Once the contract is deployed to **production**, ownership is transferred from the deployer to a [Safe{Wallet}](https://safe.global/) multisig—the original multisig wallet used for secure self-custody of owner-only actions. These include `pauseStatus`, `increaseSupply`, `decreaseSupply`, `reclaim`, `burnFreezedAssets`, and granting the admin role via `addAdmin`. Hoodi testnet keeps the deployer EOA as owner; see [`docs/DEPLOYMENTS.md`](docs/DEPLOYMENTS.md).
 
 The **`admin`** role is an operational superset of **`authority`**, **`custody`**, and **`minter`**. The owner grants or revokes admin. Admins then grant day-to-day roles via `addAuthority`, `addCustody`, and `addMinter`. An admin can perform those role actions directly without holding the narrower roles.
 
@@ -133,6 +133,7 @@ Repository notes:
 
 - [`CHANGELOG.md`](CHANGELOG.md) — material contract and audit-related changes
 - [`GUIDELINES.md`](GUIDELINES.md) — contribution, review, and release practices
+- [`docs/DEPLOYMENTS.md`](docs/DEPLOYMENTS.md) — production and testnet address index
 
 ## License
 
